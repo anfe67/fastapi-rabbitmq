@@ -1,0 +1,39 @@
+# docker-compose.yml
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # web UI (default user:guest/guest)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  producer:
+    build:
+      context: .
+      dockerfile: producer/Dockerfile
+    ports:
+      - "8001:8001"
+    env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  consumer:
+    build:
+      context: .
+      dockerfile: consumer/Dockerfile
+    ports:
+      - "8002:8002"
+    env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped

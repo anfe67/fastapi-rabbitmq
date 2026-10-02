@@ -1,0 +1,9 @@
+[project]
+name = "fastapirabbitmq"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "aio-pika>=10.1.0",
+    "fastapi>=0.142.2",
+    "pydantic>=2.13.5",
+]

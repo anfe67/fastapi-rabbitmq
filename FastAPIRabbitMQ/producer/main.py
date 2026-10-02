@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Publisher Service", lifespan=lifespan)
 
 # -------------------------------------------------------------
-# 1️⃣  Connection helpers
+# 1 - Connection helpers
 # -------------------------------------------------------------
 async def get_connection() -> aio_pika.RobustConnection:
     """Return a new RabbitMQ connection (or reuse an existing one)."""
@@ -31,7 +31,7 @@ async def get_channel(connection = Depends(get_connection)):
     return await connection.channel()
 
 # -------------------------------------------------------------
-# 2️⃣  Endpoint: POST /publish
+# 2 - Endpoint: POST /publish
 # -------------------------------------------------------------
 @app.post("/publish", status_code=status.HTTP_202_ACCEPTED)
 async def publish(

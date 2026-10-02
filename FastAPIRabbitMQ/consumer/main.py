@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Consumer Service", lifespan=lifespan)
 
 # -------------------------------------------------------------
-# 1️⃣  Connection helpers
+# 1 - Connection helpers
 # -------------------------------------------------------------
 async def get_connection() -> aio_pika.RobustConnection:
     """Return a new RabbitMQ connection."""
@@ -36,7 +36,7 @@ async def get_connection() -> aio_pika.RobustConnection:
     )
 
 # -------------------------------------------------------------
-# 2️⃣  Message handler
+# 2 - Message handler
 # -------------------------------------------------------------
 async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None:
     """Callback executed for every incoming message."""
@@ -46,7 +46,7 @@ async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None
 
 
 # -------------------------------------------------------------
-# 4️⃣  Optional health‑check
+# 3  Optional health‑check
 # -------------------------------------------------------------
 @app.get("/status")
 async def status_endpoint() -> dict:

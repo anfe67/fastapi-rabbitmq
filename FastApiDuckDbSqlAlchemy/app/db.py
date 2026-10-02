@@ -1,17 +1,16 @@
 # app/db.py
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from sqlalchemy.engine import create_engine
+# --- Engine, Session, metadata -------------------------------------------
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import sessionmaker
 
 # Import dialect registration first (separate module to avoid circular import)
 import app.dialect  # noqa: F401 - registers the duckdb dialect
 
-# --- Engine, Session, metadata -------------------------------------------
-from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
     pass

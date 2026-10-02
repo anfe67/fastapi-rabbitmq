@@ -2,9 +2,8 @@
 from __future__ import annotations
 
 from sqlalchemy import text
-from sqlalchemy.engine.default import DefaultDialect
 from sqlalchemy.dialects import registry
-from sqlalchemy.schema import CreateSequence, DropSequence, Sequence
+from sqlalchemy.engine.default import DefaultDialect
 
 
 # --- 1) DBAPI adapter -----------------------------------------------------

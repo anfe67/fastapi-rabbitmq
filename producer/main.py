@@ -1,4 +1,5 @@
 # publisher/main.py
+import asyncio
 import json
 import os
 from contextlib import asynccontextmanager
@@ -13,7 +14,7 @@ from models import Message
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup/shutdown events."""
     # Startup
-    app.state.rabbit_conn = await get_connection()
+    app.state.rabbit_conn = await get_connection_with_retry()
     yield
     # Shutdown
     await app.state.rabbit_conn.close()
@@ -25,11 +26,27 @@ app = FastAPI(title="Publisher Service", lifespan=lifespan)
 # -------------------------------------------------------------
 # 1 - Connection helpers
 # -------------------------------------------------------------
+async def get_connection_with_retry(
+    max_retries: int = 5,
+    initial_delay: float = 1.0,
+) -> aio_pika.RobustConnection:
+    """Return a new RabbitMQ connection with retry logic."""
+    url = os.getenv("RABBIT_URL", "amqp://guest:guest@rabbitmq:5672/%2F")
+
+    for attempt in range(max_retries):
+        try:
+            return await aio_pika.connect_robust(url=url)
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise
+            delay = initial_delay * (2**attempt)
+            print(f"Connection attempt {attempt + 1} failed: {e}. Retrying in {delay}s...")
+            await asyncio.sleep(delay)
+
+
 async def get_connection() -> aio_pika.RobustConnection:
     """Return a new RabbitMQ connection (or reuse an existing one)."""
-    return await aio_pika.connect_robust(
-        url=os.getenv("RABBIT_URL", "amqp://guest:guest@rabbitmq:5672/%2F")
-    )
+    return await get_connection_with_retry()
 
 
 async def get_channel(connection=Depends(get_connection)):
@@ -58,3 +75,11 @@ async def publish(
     )
 
     return {"msg": "Message queued"}
+
+
+# -------------------------------------------------------------
+# 3  Optional health‑check
+# -------------------------------------------------------------
+@app.get("/status")
+async def status_endpoint() -> dict:
+    return {"status": "running"}

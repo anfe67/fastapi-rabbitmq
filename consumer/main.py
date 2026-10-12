@@ -1,13 +1,16 @@
 # consumer/main.py
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+
 import aio_pika
+from fastapi import FastAPI
+
 from models import Message
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("consumer")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,7 +27,9 @@ async def lifespan(app: FastAPI):
     await app.state.rabbit_channel.close()
     await app.state.rabbit_conn.close()
 
+
 app = FastAPI(title="Consumer Service", lifespan=lifespan)
+
 
 # -------------------------------------------------------------
 # 1 - Connection helpers
@@ -34,6 +39,7 @@ async def get_connection() -> aio_pika.RobustConnection:
     return await aio_pika.connect_robust(
         url=os.getenv("RABBIT_URL", "amqp://guest:guest@rabbitmq:5672/%2F")
     )
+
 
 # -------------------------------------------------------------
 # 2 - Message handler

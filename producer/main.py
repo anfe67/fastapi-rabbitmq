@@ -1,10 +1,13 @@
 # publisher/main.py
-import os
 import json
+import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, status, Depends
+
 import aio_pika
+from fastapi import Depends, FastAPI, status
+
 from models import Message
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,7 +18,9 @@ async def lifespan(app: FastAPI):
     # Shutdown
     await app.state.rabbit_conn.close()
 
+
 app = FastAPI(title="Publisher Service", lifespan=lifespan)
+
 
 # -------------------------------------------------------------
 # 1 - Connection helpers
@@ -26,9 +31,11 @@ async def get_connection() -> aio_pika.RobustConnection:
         url=os.getenv("RABBIT_URL", "amqp://guest:guest@rabbitmq:5672/%2F")
     )
 
-async def get_channel(connection = Depends(get_connection)):
+
+async def get_channel(connection=Depends(get_connection)):
     """Return a channel from the given connection."""
     return await connection.channel()
+
 
 # -------------------------------------------------------------
 # 2 - Endpoint: POST /publish
@@ -36,7 +43,7 @@ async def get_channel(connection = Depends(get_connection)):
 @app.post("/publish", status_code=status.HTTP_202_ACCEPTED)
 async def publish(
     payload: Message,
-    channel = Depends(get_channel),
+    channel=Depends(get_channel),
 ):
     """
     Accept a payload, publish it to the queue and return immediately.
@@ -51,4 +58,3 @@ async def publish(
     )
 
     return {"msg": "Message queued"}
-

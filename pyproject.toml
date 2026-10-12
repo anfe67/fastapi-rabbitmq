@@ -7,3 +7,33 @@ dependencies = [
     "fastapi>=0.142.2",
     "pydantic>=2.13.5",
 ]
+
+[dependency-groups]
+dev = [
+    "pip-audit>=2.10.1",
+    "pre-commit>=4.6.2",
+    "ruff>=0.17.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["venv", ".venv"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors (style)
+    "F",   # pyflakes (undefined names, unused imports, ...)
+    "W",   # pycodestyle warnings
+    "I",   # import sorting (isort)
+    "UP",  # pyupgrade (modern syntax)
+    "B",   # flake8-bugbear (common mistakes)
+    "S",   # flake8-bandit-style security rules (fast, complements bandit)
+    "SIM", # simplifications
+    "C4",  # comprehension best practices
+]
+ignore = [
+    "B008", # Do not perform function call in argument defaults (false positive for FastAPI Depends)
+    "S104", # Binding to all interfaces (acceptable for development)
+]
+per-file-ignores = { "tests/*.py" = ["S101"] }
